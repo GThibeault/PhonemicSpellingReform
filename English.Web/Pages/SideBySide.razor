@@ -3,6 +3,8 @@
 
 <PageTitle>SideBySide</PageTitle>
 
+<h3>Spelling Reform</h3>
+
 <div class="side-by-side container">
     <div class="side-by-side-row row">
         @foreach (String key in PhonemeMapping.Keys)
@@ -22,19 +24,19 @@
                 <button @onclick="() => ToggleHidden(model)" class="side-by-side-text-button col-md-2">Edit @model.Label Text</button>
             }
         </div>
-        <div class="side-by-side-row row">            
+        <div class="side-by-side-row row">
             @foreach (var model in new List<TextModel> { OriginalText, PhonemeText })
             {
                 <textarea hidden="@model.Hidden" @bind="model.Text"></textarea>
             }
         </div>
     </div>
-    
+
     <div class="side-by-side-result container">
         <div class="side-by-side-row row">
             <button @onclick="() => BuildResultText()" class="side-by-side-result-button">Show Result</button>
         </div>
-        <div class="side-by-side-row row">            
+        <div class="side-by-side-row row">
             <span>@Result</span>
         </div>
     </div>
@@ -58,14 +60,31 @@
 
     private void BuildResultText()
     {
-        var textMapping = PhonemeText
-            .Text
-            .Select(c => PhonemeMapping.ContainsKey(c.ToString()) ? PhonemeMapping[c.ToString()] : c.ToString());
+        Int32 maxLength = GetMaxClusterLength();
+        Int32 index = 0;
+
+        List<String> textMapping = new();
+
+        while (index < PhonemeText.Text.Length)
+        {
+            IEnumerable<Int32> range = Enumerable.Range(0, Math.Min(maxLength, PhonemeText.Text.Length - index));
+            IEnumerable<String> clusters = range.Select(clusterIndex => PhonemeText.Text[index..(index + clusterIndex)]);
+
+            List<String> matchingClusters = clusters.Reverse().Where(PhonemeMapping.ContainsKey).ToList();
+            String? tentativeMapping = matchingClusters.Select(cluster => PhonemeMapping[cluster]).FirstOrDefault();
+
+            String mapping = tentativeMapping ?? PhonemeText.Text[index].ToString();
+            index += matchingClusters.FirstOrDefault()?.Length ?? 1;
+
+            textMapping.Add(mapping);
+        }
 
         var joinedText = String.Join("", textMapping);
 
         Result = joinedText;
     }
+
+    private Int32 GetMaxClusterLength() => PhonemeMapping.Keys.Max(cluster => cluster.Length);
 
     private void LoadRP()
     {
@@ -96,7 +115,7 @@
             "m",
             "n",
             "ɪ",
-            "iː",
+            "i(ː)",
             "ɛ",
             "eɪ",
             "æ",
@@ -120,6 +139,7 @@
             "ɪə",
             "ju(ː)",
             "ˈ",
+            "ˌ",
         };
 
         BuildDictionaryFromList(phonemes);
