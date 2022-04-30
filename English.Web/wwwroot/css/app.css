@@ -1,4 +1,5 @@
 ﻿@import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
+@import url('CustomStyles.less')
 
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
@@ -62,3 +63,12 @@ a, .btn-link {
     .blazor-error-boundary::after {
         content: "An error has occurred."
     }
+
+.side-by-side-key {
+    width: 35%;
+    display: inline-block;
+}
+
+.side-by-side-value {
+    width: 65%;
+}

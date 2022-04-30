@@ -3,20 +3,16 @@
 
 <PageTitle>SideBySide</PageTitle>
 
-<div>
-    @foreach (String key in dict.Keys)
-    {
-        <div>
-            <span>@key: </span><input @bind="dict[key]"></input>
-        </div>
-    }
+<div class="side-by-side container">
+    <div class="side-by-side-row row">
+        @foreach (String key in dict.Keys)
+        {
+            <div class="side-by-side-pair col-md-1">
+                <span class="side-by-side-key">@key </span><input @bind="dict[key]" class="side-by-side-value"></input>
+            </div>
+        }
+    </div>
 
-    @foreach ((String key, String? val) in dict)
-    {
-        <div>
-            <span>@key: </span><span>@(val ?? "empty value")</span>
-        </div>
-    }
     <button @onclick="() => LoadRP()">Load RP phonemes</button>
 </div>
 
