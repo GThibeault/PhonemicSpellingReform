@@ -15,9 +15,13 @@
         }
     </div>
 
-    <button @onclick="() => LoadRP()">Load RP phonemes</button>
 
     <div class="side-by-side-text container">
+        <div class="side-by-side-row row">
+            <button @onclick="() => LoadRP()" class="side-by-side-text-button col-md-2">Load RP phonemes</button>
+            <button @onclick="() => LoadGA()" class="side-by-side-text-button col-md-2">Load GA phonemes</button>
+        </div>
+
         <div class="side-by-side-row row">
             @foreach (var model in new List<TextModel> { OriginalText, PhonemeText })
             {
@@ -132,6 +136,60 @@
             "ɑː",
             "ɔː",
             "ɜː",
+            "ˈ",
+            "ˌ",
+        };
+
+        BuildDictionaryFromList(phonemes);
+    }
+
+    private void LoadGA()
+    {
+        IEnumerable<String> phonemes = new List<String>
+        {
+            "p",
+            "t",
+            "k",
+            "f",
+            "θ",
+            "s",
+            "ʃ",
+            "ʧ",
+            "j",
+            "ŋ",
+            "b",
+            "d",
+            "ɡ",
+            "v",
+            "ð",
+            "z",
+            "ʒ",
+            "ʤ",
+            "w",
+            "h",
+            "l",
+            "r",
+            "m",
+            "n",
+            "ɪ",
+            "i",
+            "ɛ",
+            "eɪ",
+            "æ",
+            "aɪ",
+            "ə",
+            "ʌ",
+            "ɑ",
+            "oʊ",
+            "ʊ",
+            "u",
+            "ɔ",
+            "aʊ",
+            "ɔɪ",
+            "ɑr",
+            "ɔr",
+            "ir",
+            "ɜr",
             "ˈ",
             "ˌ",
         };
