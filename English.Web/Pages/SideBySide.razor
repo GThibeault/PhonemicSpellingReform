@@ -14,9 +14,36 @@
     </div>
 
     <button @onclick="() => LoadRP()">Load RP phonemes</button>
+
+    <div class="side-by-side-text container">
+        <div class="side-by-side-row row">
+            @foreach (var model in new List<TextModel> { OriginalText, PhonemeText })
+            {
+                <button @onclick="() => ToggleHidden(model)" class="side-by-side-text-button col-md-2">Edit @model.Label Text</button>
+            }
+        </div>
+        <div class="side-by-side-row row">            
+            @foreach (var model in new List<TextModel> { OriginalText, PhonemeText })
+            {
+                <textarea hidden="@model.Hidden" @bind="model.Text"></textarea>
+            }
+        </div>
+    </div>
+
 </div>
 
 @code {
+    private record class TextModel(String Label, String Text = "", Boolean Hidden = true)
+    {
+        public Boolean Hidden { get; set; } = Hidden;
+        public String Text { get; set; } = Text;
+    }
+
+    private TextModel OriginalText = new("Original");
+    private TextModel PhonemeText = new("Phoneme");
+
+    private void ToggleHidden(TextModel model) => model.Hidden = !model.Hidden;
+
     private Dictionary<String, String?> dict = new();
 
     private void LoadRP()
@@ -70,7 +97,8 @@
             "ə(r)",
             "ɪə(r)",
             "ɪə",
-            "ju(ː)"
+            "ju(ː)",
+            "'",
         };
 
         BuildDictionaryFromList(phonemes);
