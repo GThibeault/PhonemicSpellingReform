@@ -5,10 +5,10 @@
 
 <div class="side-by-side container">
     <div class="side-by-side-row row">
-        @foreach (String key in dict.Keys)
+        @foreach (String key in PhonemeMapping.Keys)
         {
             <div class="side-by-side-pair col-md-1">
-                <span class="side-by-side-key">@key </span><input @bind="dict[key]" class="side-by-side-value"></input>
+                <span class="side-by-side-key">@key </span><input @bind="PhonemeMapping[key]" class="side-by-side-value"></input>
             </div>
         }
     </div>
@@ -29,7 +29,15 @@
             }
         </div>
     </div>
-
+    
+    <div class="side-by-side-result container">
+        <div class="side-by-side-row row">
+            <button @onclick="() => BuildResultText()" class="side-by-side-result-button">Show Result</button>
+        </div>
+        <div class="side-by-side-row row">            
+            <span>@Result</span>
+        </div>
+    </div>
 </div>
 
 @code {
@@ -44,7 +52,20 @@
 
     private void ToggleHidden(TextModel model) => model.Hidden = !model.Hidden;
 
-    private Dictionary<String, String?> dict = new();
+    private String Result = String.Empty;
+
+    private Dictionary<String, String> PhonemeMapping = new();
+
+    private void BuildResultText()
+    {
+        var textMapping = PhonemeText
+            .Text
+            .Select(c => PhonemeMapping.ContainsKey(c.ToString()) ? PhonemeMapping[c.ToString()] : c.ToString());
+
+        var joinedText = String.Join("", textMapping);
+
+        Result = joinedText;
+    }
 
     private void LoadRP()
     {
@@ -98,7 +119,7 @@
             "ɪə(r)",
             "ɪə",
             "ju(ː)",
-            "'",
+            "ˈ",
         };
 
         BuildDictionaryFromList(phonemes);
@@ -106,6 +127,6 @@
 
     private void BuildDictionaryFromList(IEnumerable<String> phonemes)
     {
-        dict = phonemes.ToDictionary<String, String, String?>(phoneme => phoneme, phoneme => phoneme);
+        PhonemeMapping = phonemes.ToDictionary(phoneme => phoneme, phoneme => phoneme);
     }
 }
