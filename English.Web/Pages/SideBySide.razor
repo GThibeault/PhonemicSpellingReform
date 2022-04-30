@@ -1,0 +1,87 @@
+﻿@page "/sideBySide"
+@using System.Text.Json
+
+<PageTitle>SideBySide</PageTitle>
+
+<div>
+    @foreach (String key in dict.Keys)
+    {
+        <div>
+            <span>@key: </span><input @bind="dict[key]"></input>
+        </div>
+    }
+
+    @foreach ((String key, String? val) in dict)
+    {
+        <div>
+            <span>@key: </span><span>@(val ?? "empty value")</span>
+        </div>
+    }
+    <button @onclick="() => LoadRP()">Load RP phonemes</button>
+</div>
+
+@code {
+    private Dictionary<String, String?> dict = new();
+
+    private void LoadRP()
+    {
+        IEnumerable<String> phonemes = new List<String>
+        {
+            "p",
+            "t",
+            "k",
+            "f",
+            "θ",
+            "s",
+            "ʃ",
+            "ʧ",
+            "j",
+            "ŋ",
+            "b",
+            "d",
+            "ɡ",
+            "v",
+            "ð",
+            "z",
+            "ʒ",
+            "ʤ",
+            "w",
+            "h",
+            "l",
+            "r",
+            "m",
+            "n",
+            "ɪ",
+            "iː",
+            "ɛ",
+            "eɪ",
+            "æ",
+            "aɪ",
+            "ə",
+            "ʌ",
+            "ɒ",
+            "əʊ",
+            "ʊ",
+            "u(ː)",
+            "aʊ",
+            "ɔɪ",
+            "ɑː",
+            "ɔː",
+            "ɑː(r)",
+            "ɔː(r)",
+            "ɛə(r)",
+            "ɜː(r)",
+            "ə(r)",
+            "ɪə(r)",
+            "ɪə",
+            "ju(ː)"
+        };
+
+        BuildDictionaryFromList(phonemes);
+    }
+
+    private void BuildDictionaryFromList(IEnumerable<String> phonemes)
+    {
+        dict = phonemes.ToDictionary<String, String, String?>(phoneme => phoneme, phoneme => phoneme);
+    }
+}
