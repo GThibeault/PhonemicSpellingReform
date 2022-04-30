@@ -68,9 +68,9 @@
         while (index < PhonemeText.Text.Length)
         {
             IEnumerable<Int32> range = Enumerable.Range(0, Math.Min(maxLength, PhonemeText.Text.Length - index));
-            IEnumerable<String> clusters = range.Select(clusterIndex => PhonemeText.Text[index..(index + clusterIndex)]);
+            IEnumerable<String> clusters = range.Select(clusterIndex => PhonemeText.Text[index..(index + 1 + clusterIndex)]);
 
-            List<String> matchingClusters = clusters.Reverse().Where(PhonemeMapping.ContainsKey).ToList();
+            List<String> matchingClusters = clusters.Reverse<String>().Where(PhonemeMapping.ContainsKey).ToList();
             String? tentativeMapping = matchingClusters.Select(cluster => PhonemeMapping[cluster]).FirstOrDefault();
 
             String mapping = tentativeMapping ?? PhonemeText.Text[index].ToString();
@@ -79,7 +79,7 @@
             textMapping.Add(mapping);
         }
 
-        var joinedText = String.Join("", textMapping);
+        String joinedText = String.Join(String.Empty, textMapping);
 
         Result = joinedText;
     }
@@ -116,6 +116,7 @@
             "n",
             "ɪ",
             "i(ː)",
+            "iː",
             "ɛ",
             "eɪ",
             "æ",
