@@ -40,9 +40,14 @@
         <div class="side-by-side-row row">
             <button @onclick="() => BuildResultText()" class="side-by-side-result-button">Show Result</button>
         </div>
-        <div class="side-by-side-row row">
-            <span>@Result</span>
-        </div>
+
+        @foreach (var line in Result)
+        {
+            <div class="side-by-side-row row">
+                <span class="side-by-side-result-text">@line</span>
+                <br/>
+            </div>
+        }
     </div>
 </div>
 
@@ -58,7 +63,7 @@
 
     private void ToggleHidden(TextModel model) => model.Hidden = !model.Hidden;
 
-    private String Result = String.Empty;
+    private IEnumerable<String> Result = new List<String>();
 
     private Dictionary<String, String> PhonemeMapping = new();
 
@@ -84,8 +89,9 @@
         }
 
         String joinedText = String.Join(String.Empty, textMapping);
+        IEnumerable<String> resultLines = joinedText.Split(System.Environment.NewLine);
 
-        Result = joinedText;
+        Result = resultLines;
     }
 
     private Int32 GetMaxClusterLength() => PhonemeMapping.Keys.Max(cluster => cluster.Length);
