@@ -1,5 +1,9 @@
 ﻿@page "/sideBySide"
 @using System.Text.Json
+@using English.Web.Model.Requests
+@using English.Web.Model.Responses
+@using English.Web.Logic.Phonemes;
+@inject HttpClient Http
 
 <PageTitle>SideBySide</PageTitle>
 
@@ -13,13 +17,17 @@
                 <span class="side-by-side-key">@key </span><input @bind="PhonemeMapping[key]" class="side-by-side-value"></input>
             </div>
         }
+        <div class="side-by-side-pair col-md-1">
+            <button @onclick="() => AddPhoneme()" class="side-by-side-key">+</button><input @bind="NewPhoneme" class="side-by-side-value"></input>
+        </div>
     </div>
 
 
     <div class="side-by-side-text container">
         <div class="side-by-side-row row">
-            <button @onclick="() => LoadRP()" class="side-by-side-text-button col-md-2">Load RP phonemes</button>
-            <button @onclick="() => LoadGA()" class="side-by-side-text-button col-md-2">Load GA phonemes</button>
+            <button @onclick="() => LoadToPhoneticsRP()" class="side-by-side-text-button col-md-2">Load TP-RP phonemes</button>
+            <button @onclick="() => LoadToPhoneticsGA()" class="side-by-side-text-button col-md-2">Load TP-GA phonemes</button>
+            <button @onclick="() => LoadPhonemizerGA()" class="side-by-side-text-button col-md-2">Load GA phonemes</button>
         </div>
 
         <div class="side-by-side-row row">
@@ -27,6 +35,7 @@
             {
                 <button @onclick="() => ToggleHidden(model)" class="side-by-side-text-button col-md-2">Edit @model.Label Text</button>
             }
+            <button @onclick="() => SetPhonemization()" class="side-by-side-text-button col-md-2">Phonemize</button>
         </div>
         <div class="side-by-side-row row">
             @foreach (var model in new List<TextModel> { OriginalText, PhonemeText })
@@ -45,7 +54,7 @@
         {
             <div class="side-by-side-row row">
                 <span class="side-by-side-result-text">@line</span>
-                <br/>
+                <br />
             </div>
         }
     </div>
@@ -66,6 +75,16 @@
     private IEnumerable<String> Result = new List<String>();
 
     private Dictionary<String, String> PhonemeMapping = new();
+
+    private String NewPhoneme = String.Empty;
+    private void AddPhoneme()
+    {
+        if (!PhonemeMapping.ContainsKey(NewPhoneme))
+        {
+            PhonemeMapping[NewPhoneme] = NewPhoneme;
+            NewPhoneme = String.Empty;
+        }
+    }
 
     private void BuildResultText()
     {
@@ -96,115 +115,20 @@
 
     private Int32 GetMaxClusterLength() => PhonemeMapping.Keys.Max(cluster => cluster.Length);
 
-    private void LoadRP()
+    private async Task SetPhonemization()
     {
-        IEnumerable<String> phonemes = new List<String>
-        {
-            "p",
-            "t",
-            "k",
-            "f",
-            "θ",
-            "s",
-            "ʃ",
-            "ʧ",
-            "j",
-            "ŋ",
-            "b",
-            "d",
-            "ɡ",
-            "v",
-            "ð",
-            "z",
-            "ʒ",
-            "ʤ",
-            "w",
-            "h",
-            "l",
-            "r",
-            "m",
-            "n",
-            "ɪ",
-            "i(ː)",
-            "iː",
-            "ɛ",
-            "eɪ",
-            "æ",
-            "aɪ",
-            "ə",
-            "ʌ",
-            "ɒ",
-            "əʊ",
-            "ʊ",
-            "uː",
-            "aʊ",
-            "ɔɪ",
-            "ɑː",
-            "ɔː",
-            "ɜː",
-            "ˈ",
-            "ˌ",
-        };
+        HttpResponseMessage responseMessage = await Http.PostAsJsonAsync("http://localhost:8000/phonemize", new PhonemizeRequest(OriginalText.Text));
+        PhonemizeResponse? response = await responseMessage.Content.ReadFromJsonAsync<PhonemizeResponse>();
 
-        BuildDictionaryFromList(phonemes);
+        String phonemization = response?.phonemized ?? String.Empty;
+
+        PhonemeText.Hidden = false;
+        PhonemeText.Text = phonemization;
     }
 
-    private void LoadGA()
-    {
-        IEnumerable<String> phonemes = new List<String>
-        {
-            "p",
-            "t",
-            "k",
-            "f",
-            "θ",
-            "s",
-            "ʃ",
-            "ʧ",
-            "j",
-            "ŋ",
-            "b",
-            "d",
-            "ɡ",
-            "v",
-            "ð",
-            "z",
-            "ʒ",
-            "ʤ",
-            "w",
-            "h",
-            "l",
-            "r",
-            "m",
-            "n",
-            "ɪ",
-            "i",
-            "ɛ",
-            "eɪ",
-            "æ",
-            "aɪ",
-            "ə",
-            "ʌ",
-            "ɑ",
-            "oʊ",
-            "ʊ",
-            "u",
-            "ɔ",
-            "aʊ",
-            "ɔɪ",
-            "ɑr",
-            "ɔr",
-            "ir",
-            "ɜr",
-            "ˈ",
-            "ˌ",
-        };
+    private void LoadToPhoneticsRP() => LoadPhonemes(new ToPhoneticsRPPhonemeFetcher());
+    private void LoadToPhoneticsGA() => LoadPhonemes(new ToPhoneticsGAPhonemeFetcher());
+    private void LoadPhonemizerGA() => LoadPhonemes(new PythonPhonemizerPhonemeFetcher());
 
-        BuildDictionaryFromList(phonemes);
-    }
-
-    private void BuildDictionaryFromList(IEnumerable<String> phonemes)
-    {
-        PhonemeMapping = phonemes.ToDictionary(phoneme => phoneme, phoneme => phoneme);
-    }
+    private void LoadPhonemes(IPhonemeFetcher fetcher) => PhonemeMapping = fetcher.GetPhonemeDict();
 }
