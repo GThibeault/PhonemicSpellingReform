@@ -13,50 +13,65 @@
     <div class="side-by-side-row row">
         @foreach (String key in PhonemeMapping.Keys)
         {
-            <div class="side-by-side-pair col-md-1">
-                <span class="side-by-side-key">@key </span><input @bind="PhonemeMapping[key]" class="side-by-side-value"></input>
+            <div class="side-by-side-pair col-md-2">
+                <span class="side-by-side-key">@key </span>
+                <input @bind="PhonemeMapping[key]" class="side-by-side-value"></input>
+                <button @onclick="() => RemovePhoneme(key)" class="side-by-side-remove btn-close"></button>
             </div>
         }
         <div class="side-by-side-pair col-md-1">
-            <button @onclick="() => AddPhoneme()" class="side-by-side-key">+</button><input @bind="NewPhoneme" class="side-by-side-value"></input>
+            <button @onclick="() => AddPhoneme()" class="side-by-side-key">+</button>
+            <input @bind="NewPhoneme" class="side-by-side-value"></input>
         </div>
     </div>
 
 
     <div class="side-by-side-text container">
         <div class="side-by-side-row row">
-            <button @onclick="() => LoadToPhoneticsRP()" class="side-by-side-text-button col-md-2">Load TP-RP phonemes</button>
-            <button @onclick="() => LoadToPhoneticsGA()" class="side-by-side-text-button col-md-2">Load TP-GA phonemes</button>
             <button @onclick="() => LoadPhonemizerGA()" class="side-by-side-text-button col-md-2">Load GA phonemes</button>
+            <button @onclick="() => LoadStressedPhonemizerGA()" class="side-by-side-text-button col-md-2">Load Stressed GA phonemes</button>
+            <button @onclick="() => ClearPhonemes()" class="side-by-side-text-button col-md-2">Clear phonemes</button>
         </div>
 
         <div class="side-by-side-row row">
-            @foreach (var model in new List<TextModel> { OriginalText, PhonemeText })
+            @foreach (var model in GetModels())
             {
                 <button @onclick="() => ToggleHidden(model)" class="side-by-side-text-button col-md-2">Edit @model.Label Text</button>
             }
             <button @onclick="() => SetPhonemization()" class="side-by-side-text-button col-md-2">Phonemize</button>
+            <button @onclick="() => GetResultText()" class="side-by-side-text-button col-md-2">Show Result</button>
+            <button @onclick="() => ToggleSideBySide()" class="side-by-side-text-button col-md-2">Toggle Side by Side</button>
         </div>
         <div class="side-by-side-row row">
-            @foreach (var model in new List<TextModel> { OriginalText, PhonemeText })
+            @foreach (var model in GetModels())
             {
-                <textarea hidden="@model.Hidden" @bind="model.Text"></textarea>
+                <textarea class="side-by-side-row col-md-@(12 / Math.Max(1, GetModels().Where(m => !m.Hidden).Count()))"
+                      hidden="@model.Hidden" @bind="model.Text">
+                </textarea>
             }
         </div>
     </div>
 
-    <div class="side-by-side-result container">
-        <div class="side-by-side-row row">
-            <button @onclick="() => GetResultText()" class="side-by-side-result-button">Show Result</button>
+    <div class="side-by-side-result row container">
+        <div hidden="@(!ShowSideBySide)" class="col-md-@(GetResultColumns())">
+            <span></span>
+            @foreach (var line in OriginalText.Text.Split(Environment.NewLine))
+            {
+                <div class="side-by-side-row row">
+                    <span class="side-by-side-result-text">@line</span>
+                    <br />
+                </div>
+            }
         </div>
-
-        @foreach (var line in Result)
-        {
-            <div class="side-by-side-row row">
-                <span class="side-by-side-result-text">@line</span>
-                <br />
-            </div>
-        }
+        <div class="col-md-@(GetResultColumns())">
+            @foreach (var line in Result)
+            {
+                <div class="side-by-side-row row">
+                    <span class="side-by-side-result-text">@line</span>
+                    <br />
+                </div>
+            }
+        </div>
     </div>
 </div>
 
@@ -72,6 +87,8 @@
 
     private void ToggleHidden(TextModel model) => model.Hidden = !model.Hidden;
 
+    private IEnumerable<TextModel> GetModels() => new List<TextModel> { OriginalText, PhonemeText };
+
     private IEnumerable<String> Result = new List<String>();
 
     private Dictionary<String, String> PhonemeMapping = new();
@@ -85,6 +102,20 @@
             NewPhoneme = String.Empty;
         }
     }
+
+    private void RemovePhoneme(String key)
+    {
+        if (key is not null && PhonemeMapping.ContainsKey(key))
+        {
+            PhonemeMapping.Remove(key);
+        }
+    }
+
+    private void ClearPhonemes() => PhonemeMapping = new();
+
+    private Boolean ShowSideBySide = false;
+    private void ToggleSideBySide() => ShowSideBySide = !ShowSideBySide;
+    private Int32 GetResultColumns() => ShowSideBySide ? 6 : 12;
 
     private void GetResultText()
     {
@@ -101,9 +132,8 @@
         PhonemeText.Text = phonemization;
     }
 
-    private void LoadToPhoneticsRP() => LoadPhonemes(new ToPhoneticsRPPhonemeFetcher());
-    private void LoadToPhoneticsGA() => LoadPhonemes(new ToPhoneticsGAPhonemeFetcher());
     private void LoadPhonemizerGA() => LoadPhonemes(new PythonPhonemizerPhonemeFetcher());
+    private void LoadStressedPhonemizerGA() => LoadPhonemes(new StressedPhonemizerPhonemeFetcher());
 
     private void LoadPhonemes(IPhonemeFetcher fetcher) => PhonemeMapping = fetcher.GetPhonemeDict();
 }
