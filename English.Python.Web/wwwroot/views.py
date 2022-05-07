@@ -13,6 +13,7 @@ def phonemize_handler():
     request_data = request.get_json()
     phonemized = phonemize(
         request_data["text"],
+        language='en-us',
         preserve_empty_lines=True,
         preserve_punctuation=True,
         with_stress=True,
