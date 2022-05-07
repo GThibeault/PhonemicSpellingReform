@@ -1,3 +1,3 @@
 ﻿namespace English.Web.Model.Requests;
 
-public record class PhonemizeRequest(String text);
+public record class PhonemizeRequest(List<String> text);
