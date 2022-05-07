@@ -1,9 +1,9 @@
 ﻿@page "/"
 @using System.Text.Json
-@using English.Web.Model.Requests
-@using English.Web.Model.Responses
+@using English.Web.Logic
 @using English.Web.Logic.Phonemes;
-@inject HttpClient Http
+@inject PhonemizationFetcher PhonemeFetcher
+@inject SpellingMapper Mapper
 
 <PageTitle>SideBySide</PageTitle>
 
@@ -47,7 +47,7 @@
 
     <div class="side-by-side-result container">
         <div class="side-by-side-row row">
-            <button @onclick="() => BuildResultText()" class="side-by-side-result-button">Show Result</button>
+            <button @onclick="() => GetResultText()" class="side-by-side-result-button">Show Result</button>
         </div>
 
         @foreach (var line in Result)
@@ -86,44 +86,16 @@
         }
     }
 
-    private void BuildResultText()
+    private void GetResultText()
     {
-        Int32 maxLength = GetMaxClusterLength();
-        Int32 index = 0;
-
-        List<String> textMapping = new();
-
-        while (index < PhonemeText.Text.Length)
-        {
-            IEnumerable<Int32> range = Enumerable.Range(0, Math.Min(maxLength, PhonemeText.Text.Length - index));
-            IEnumerable<String> clusters = range.Select(clusterIndex => PhonemeText.Text[index..(index + 1 + clusterIndex)]);
-
-            List<String> matchingClusters = clusters.Reverse<String>().Where(PhonemeMapping.ContainsKey).ToList();
-            String? tentativeMapping = matchingClusters.Select(cluster => PhonemeMapping[cluster]).FirstOrDefault();
-
-            String mapping = tentativeMapping ?? PhonemeText.Text[index].ToString();
-            index += matchingClusters.FirstOrDefault()?.Length ?? 1;
-
-            textMapping.Add(mapping);
-        }
-
-        String joinedText = String.Join(String.Empty, textMapping);
-        IEnumerable<String> resultLines = joinedText.Split(System.Environment.NewLine);
+        IEnumerable<String> resultLines = Mapper.BuildResultText(PhonemeMapping, PhonemeText.Text);
 
         Result = resultLines;
     }
 
-    private Int32 GetMaxClusterLength() => PhonemeMapping.Keys.Max(cluster => cluster.Length);
-
     private async Task SetPhonemization()
     {
-        List<String> lines = OriginalText.Text.Split(Environment.NewLine).ToList();
-        PhonemizeRequest request = new(lines);
-
-        HttpResponseMessage responseMessage = await Http.PostAsJsonAsync("http://localhost:8000/phonemize", request);
-        PhonemizeResponse? response = await responseMessage.Content.ReadFromJsonAsync<PhonemizeResponse>();
-
-        String phonemization = String.Join(Environment.NewLine, response?.phonemized ?? new());
+        String phonemization = await PhonemeFetcher.GetPhonemization(OriginalText.Text);
 
         PhonemeText.Hidden = false;
         PhonemeText.Text = phonemization;
