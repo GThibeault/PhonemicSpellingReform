@@ -4,12 +4,18 @@ from . import app
 from phonemizer import phonemize
 
 cors = CORS(app)
-app.config['CORS_HEADERS'] = 'Content-Type'
+app.config["CORS_HEADERS"] = "Content-Type"
 
-@app.route("/phonemize", methods = ["POST"])
+
+@app.route("/phonemize", methods=["POST"])
 @cross_origin()
 def phonemize_handler():
     request_data = request.get_json()
-    phonemized = phonemize(request_data["text"])
+    phonemized = phonemize(
+        request_data["text"],
+        preserve_empty_lines=True,
+        preserve_punctuation=True,
+        with_stress=True,
+    )
 
-    return { "phonemized": phonemized}
+    return {"phonemized": phonemized}
