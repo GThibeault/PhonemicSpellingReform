@@ -13,10 +13,10 @@ public class PhonemizationFetcher
         Http = http;
     }
 
-    public async Task<String> GetPhonemization(String text)
+    public async Task<String> GetPhonemization(String text, String? language = null)
     {
         List<String> lines = text.Split(Environment.NewLine).ToList();
-        PhonemizeRequest request = new(lines);
+        PhonemizeRequest request = new(lines, language);
 
         HttpResponseMessage responseMessage = await Http.PostAsJsonAsync("http://localhost:8000/phonemize", request);
         PhonemizeResponse? response = await responseMessage.Content.ReadFromJsonAsync<PhonemizeResponse>();

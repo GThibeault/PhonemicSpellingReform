@@ -5,6 +5,7 @@
 @using English.Web.Model
 @inject InputTextModel InputModel
 @inject PhonemizationFetcher PhonemeFetcher
+@inject HttpClient Http
 
 <PageTitle>InputText</PageTitle>
 
@@ -12,6 +13,15 @@
 
 <div class="side-by-side container">
     <div class="side-by-side-text container">
+        <div class="side-by-side-row row">
+            <span class="side-by-side-key">Language</span>
+            <select @bind="InputModel.Language" class="side-by-side-value">
+                @foreach (var language in Languages)
+                {
+                    <option value="@language.Key">@language.Value</option>
+                }
+            </select>
+        </div>
         <div class="side-by-side-row row">
             @foreach (var model in GetModels())
             {
@@ -24,22 +34,36 @@
             {
                 <textarea class="side-by-side-row col-md-@(12 / Math.Max(1, GetModels().Where(m => !m.Hidden).Count()))"
                       hidden="@model.Hidden" @bind="model.Text">
-                </textarea>
+                        </textarea>
             }
         </div>
     </div>
 </div>
 
 @code {
+    protected override async Task OnInitializedAsync()
+    {
+        Languages = await Http.GetFromJsonAsync<Dictionary<String, String>>("data/languages.json") ?? GetDefaultLanguages();
+
+        if (String.IsNullOrEmpty(InputModel.Language))
+        {
+            InputModel.Language = GetDefaultLanguages().Keys.First();
+        }
+    }
+    
+    private Dictionary<String, String> Languages = new();
+
     private void ToggleHidden(TextModel model) => model.Hidden = !model.Hidden;
 
     private IEnumerable<TextModel> GetModels() => new List<TextModel> { InputModel.OriginalText, InputModel.PhonemeText };
 
     private async Task SetPhonemization()
     {
-        String phonemization = await PhonemeFetcher.GetPhonemization(InputModel.OriginalText.Text);
+        String phonemization = await PhonemeFetcher.GetPhonemization(InputModel.OriginalText.Text, InputModel.Language);
 
         InputModel.PhonemeText.Hidden = false;
         InputModel.PhonemeText.Text = phonemization;
     }
+
+    private Dictionary<String, String> GetDefaultLanguages() => new() { ["en-us"] = "English (United States)" };
 }
