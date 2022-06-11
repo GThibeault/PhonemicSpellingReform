@@ -75,3 +75,16 @@ a, .btn-link {
 .side-by-side-remove {
     width: 5%;
 }
+
+.side-by-side .form-control {
+    display: inline-block !important;
+}
+
+.side-by-side-text-button {
+    max-width: 19%;
+    margin: 5px;
+}
+
+.side-by-side-row {
+    margin-bottom: 5px;
+}
