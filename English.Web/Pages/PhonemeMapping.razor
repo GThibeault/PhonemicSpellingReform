@@ -3,9 +3,14 @@
 @using System.Text.Json
 @using English.Web.Logic
 @using English.Web.Model
+@using System.Text
+@using System.Text.Encodings.Web;
+@using System.Text.Unicode
+@inject IJSRuntime JSRuntime
 @inject PhonemizationFetcher PhonemeFetcher
 @inject PhonemeMappingModel Phonemes
 @inject HttpClient Http
+@inject JsonSerializerOptionsBuilder JsonOptionsBuilder
 
 <PageTitle>PhonemeMapping</PageTitle>
 
@@ -22,15 +27,24 @@
             </div>
         }
         <div class="side-by-side-pair col-md-1">
-            <button @onclick="() => AddPhoneme()" class="side-by-side-key">+</button>
+            <button @onclick="() => AddPhoneme()" class="side-by-side-key form-control btn btn-primary">+</button>
             <input @bind="NewPhoneme" class="side-by-side-value"></input>
         </div>
     </div>
 
     <div class="side-by-side-row row">
-        <button @onclick="() => LoadPhonemizerGA()" class="side-by-side-text-button col-md-2">Load GA phonemes</button>
-        <button @onclick="() => LoadStressedPhonemizerGA()" class="side-by-side-text-button col-md-2">Load Stressed GA phonemes</button>
-        <button @onclick="() => ClearPhonemes()" class="side-by-side-text-button col-md-2">Clear phonemes</button>
+        <button @onclick="async () => await LoadPhonemizerGA()" class="side-by-side-text-button col-md-2 form-control btn btn-primary">Load GA phonemes</button>
+        <button @onclick="async () => await LoadStressedPhonemizerGA()" class="side-by-side-text-button col-md-2 form-control btn btn-primary">Load Stressed GA phonemes</button>
+        <button @onclick="() => ClearPhonemes()" class="side-by-side-text-button col-md-2 form-control btn btn-primary">Clear phonemes</button>
+    </div>
+
+    <div class="side-by-side-row row">
+        <button @onclick="async () => await ExportToClipboard()" class="side-by-side-text-button col-md-2 form-control btn btn-primary">
+            Export mapping to clipboard
+        </button>
+        <button @onclick="async () => await ImportFromClipboard()" class="side-by-side-text-button col-md-2 form-control btn btn-primary">
+            Import mapping from clipboard
+        </button>
     </div>
 </div>
 
@@ -60,7 +74,30 @@
     private async Task LoadPhonemizerGA() => await LoadPhonemes("ga");
     private async Task LoadStressedPhonemizerGA() => await LoadPhonemes("stressed-ga");
 
-    private async Task LoadPhonemes(String phonemeSet) {
+    private async Task LoadPhonemes(String phonemeSet)
+    {
         Phonemes.Mapping = await Http.GetFromJsonAsync<Dictionary<String, String>>($"data/phoneme-mappings/{phonemeSet}.json") ?? new();
+    }
+
+    private async Task ExportToClipboard()
+    {
+        JsonSerializerOptions options = JsonOptionsBuilder.BuildOptions();
+        String serializedMapping = JsonSerializer.Serialize(Phonemes.Mapping, options);
+
+        await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", serializedMapping);
+    }
+
+    private async Task ImportFromClipboard()
+    {
+        try
+        {
+            String serializedMapping = await JSRuntime.InvokeAsync<String>("navigator.clipboard.readText");
+
+            Phonemes.Mapping = JsonSerializer.Deserialize<Dictionary<String, String>>(serializedMapping) ?? new();
+        }
+        catch (Exception ex)
+        {
+            Console.Write(ex.ToString());
+        }
     }
 }
