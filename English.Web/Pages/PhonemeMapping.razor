@@ -18,8 +18,10 @@
 
 <div class="side-by-side container">
     <div class="side-by-side-row row">
-        <button @onclick="async () => await LoadPhonemizerGA()" class="side-by-side-text-button col-md-2 form-control btn btn-primary">Load GA phonemes</button>
-        <button @onclick="async () => await LoadStressedPhonemizerGA()" class="side-by-side-text-button col-md-2 form-control btn btn-primary">Load Stressed GA phonemes</button>
+        @foreach (var phonemeSet in PhonemeSets)
+        {
+        <button @onclick="async () => await LoadPhonemes(phonemeSet)" class="side-by-side-text-button col-md-2 form-control btn btn-primary">Load @(phonemeSet.Label) phonemes</button>
+        }
         <button @onclick="() => ClearPhonemes()" class="side-by-side-text-button col-md-2 form-control btn btn-primary">Clear phonemes</button>
         <button @onclick="async () => await ExportToClipboard()" class="side-by-side-text-button col-md-2 form-control btn btn-primary">
             Export mapping to clipboard
@@ -49,6 +51,13 @@
 
     private String NewPhoneme = String.Empty;
 
+    private IEnumerable<PhonemeSetModel> PhonemeSets = new List<PhonemeSetModel>
+    {
+        new("Stressed GA", "stressed-ga"),
+        new("Stressed Dutch Variant", "stressed_dutch_variant"),
+        new("Dutch Variant", "dutch_variant"),
+    };
+
     private void AddPhoneme()
     {
         if (!Phonemes.Mapping.ContainsKey(NewPhoneme))
@@ -68,12 +77,9 @@
 
     private void ClearPhonemes() => Phonemes.Mapping.Clear();
 
-    private async Task LoadPhonemizerGA() => await LoadPhonemes("ga");
-    private async Task LoadStressedPhonemizerGA() => await LoadPhonemes("stressed-ga");
-
-    private async Task LoadPhonemes(String phonemeSet)
+    private async Task LoadPhonemes(PhonemeSetModel phonemeSet)
     {
-        Phonemes.Mapping = await Http.GetFromJsonAsync<Dictionary<String, String>>($"data/phoneme-mappings/{phonemeSet}.json") ?? new();
+        Phonemes.Mapping = await Http.GetFromJsonAsync<Dictionary<String, String>>($"data/phoneme-mappings/{phonemeSet.FileName}.json") ?? new();
     }
 
     private async Task ExportToClipboard()
