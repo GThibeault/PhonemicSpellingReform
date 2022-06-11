@@ -9,17 +9,15 @@
 
 <PageTitle>SideBySide</PageTitle>
 
-<h3>Spelling Reform</h3>
+<h3>Reformed Spelling</h3>
 
 <div class="side-by-side container">
     <div class="side-by-side-result row container">
         <div class="side-by-side-row row">
-            <button @onclick="() => GetResultText()" class="side-by-side-text-button col-md-2">Show Result</button>
             <button @onclick="() => ToggleSideBySide()" class="side-by-side-text-button col-md-2">Toggle Side by Side</button>
         </div>
-        <div hidden="@(!ShowSideBySide)" class="col-md-@(GetResultColumns())">
-            <span></span>
-            @foreach (var line in InputModel.OriginalText.Text.Split(Environment.NewLine))
+        <div class="col-md-@(GetResultColumns())">
+            @foreach (var line in Result)
             {
                 <div class="side-by-side-row row">
                     <span class="side-by-side-result-text">@line</span>
@@ -27,8 +25,9 @@
                 </div>
             }
         </div>
-        <div class="col-md-@(GetResultColumns())">
-            @foreach (var line in Result)
+        <div hidden="@(!ShowSideBySide)" class="col-md-@(GetResultColumns())">
+            <span></span>
+            @foreach (var line in InputModel.OriginalText.Text.Split(Environment.NewLine))
             {
                 <div class="side-by-side-row row">
                     <span class="side-by-side-result-text">@line</span>
@@ -42,14 +41,19 @@
 @code {
     private IEnumerable<String> Result = new List<String>();
 
+    protected override void OnInitialized()
+    {
+        Result = GetResultText();
+    }
+
     private Boolean ShowSideBySide = false;
     private void ToggleSideBySide() => ShowSideBySide = !ShowSideBySide;
     private Int32 GetResultColumns() => ShowSideBySide ? 6 : 12;
 
-    private void GetResultText()
+    private IEnumerable<String> GetResultText()
     {
         IEnumerable<String> resultLines = Mapper.BuildResultText(Phonemes.Mapping, InputModel.PhonemeText.Text);
 
-        Result = resultLines;
+        return resultLines;
     }
 }

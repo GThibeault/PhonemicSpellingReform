@@ -29,5 +29,5 @@ public class SpellingMapper
         return resultLines;
     }
 
-    private static Int32 GetMaxClusterLength(Dictionary<String, String> phonemeMapping) => phonemeMapping.Keys.Max(cluster => cluster.Length);
+    private static Int32 GetMaxClusterLength(Dictionary<String, String> phonemeMapping) => phonemeMapping.Keys.Max(cluster => cluster.Length as Int32?) ?? 0;
 }
