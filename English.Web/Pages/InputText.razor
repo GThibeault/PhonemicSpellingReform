@@ -1,0 +1,45 @@
+﻿@page "/inputText"
+@using System.Text.Json
+@using English.Web.Logic
+@using English.Web.Logic.Phonemes;
+@using English.Web.Model
+@inject InputTextModel InputModel
+@inject PhonemizationFetcher PhonemeFetcher
+
+<PageTitle>InputText</PageTitle>
+
+<h3>Input Text</h3>
+
+<div class="side-by-side container">
+    <div class="side-by-side-text container">
+        <div class="side-by-side-row row">
+            @foreach (var model in GetModels())
+            {
+                <button @onclick="() => ToggleHidden(model)" class="side-by-side-text-button col-md-2">Edit @model.Label Text</button>
+            }
+            <button @onclick="() => SetPhonemization()" class="side-by-side-text-button col-md-2">Phonemize</button>
+        </div>
+        <div class="side-by-side-row row">
+            @foreach (var model in GetModels())
+            {
+                <textarea class="side-by-side-row col-md-@(12 / Math.Max(1, GetModels().Where(m => !m.Hidden).Count()))"
+                      hidden="@model.Hidden" @bind="model.Text">
+                </textarea>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private void ToggleHidden(TextModel model) => model.Hidden = !model.Hidden;
+
+    private IEnumerable<TextModel> GetModels() => new List<TextModel> { InputModel.OriginalText, InputModel.PhonemeText };
+
+    private async Task SetPhonemization()
+    {
+        String phonemization = await PhonemeFetcher.GetPhonemization(InputModel.OriginalText.Text);
+
+        InputModel.PhonemeText.Hidden = false;
+        InputModel.PhonemeText.Text = phonemization;
+    }
+}

@@ -12,5 +12,6 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
 builder.Services.AddTransient(sp => new SpellingMapper());
 builder.Services.AddTransient(sp => new PhonemizationFetcher(sp.GetService<HttpClient>()!));
 builder.Services.AddSingleton(sp => new PhonemeMappingModel());
+builder.Services.AddSingleton(sp => new InputTextModel());
 
 await builder.Build().RunAsync();
