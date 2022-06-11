@@ -33,7 +33,7 @@
         @foreach (String key in Phonemes.Mapping.Keys)
         {
             <div class="side-by-side-pair col-md-2">
-                <span class="side-by-side-key">@key </span>
+                <span class="side-by-side-key form-text">@key </span>
                 <input @bind="Phonemes.Mapping[key]" class="side-by-side-value form-control"></input>
                 <button @onclick="() => RemovePhoneme(key)" class="side-by-side-remove btn btn-close"></button>
             </div>

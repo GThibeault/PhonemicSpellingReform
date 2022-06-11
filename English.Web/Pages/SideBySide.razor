@@ -13,13 +13,13 @@
 <div class="side-by-side container">
     <div class="side-by-side-result row container">
         <div class="side-by-side-row row">
-            <button @onclick="() => ToggleSideBySide()" class="side-by-side-text-button col-md-2">Toggle Side by Side</button>
+            <button @onclick="() => ToggleSideBySide()" class="side-by-side-text-button btn btn-primary form-control col-md-2">Toggle Side by Side</button>
         </div>
         <div class="col-md-@(GetResultColumns())">
             @foreach (var line in Result)
             {
                 <div class="side-by-side-row row">
-                    <span class="side-by-side-result-text">@line</span>
+                    <span class="side-by-side-result-text form-text">@line</span>
                     <br />
                 </div>
             }
@@ -29,7 +29,7 @@
             @foreach (var line in InputModel.OriginalText.Text.Split(Environment.NewLine))
             {
                 <div class="side-by-side-row row">
-                    <span class="side-by-side-result-text">@line</span>
+                    <span class="side-by-side-result-text form-text">@line</span>
                     <br />
                 </div>
             }

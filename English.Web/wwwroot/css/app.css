@@ -77,7 +77,7 @@ a, .btn-link {
 }
 
 .side-by-side .form-control {
-    display: inline-block !important;
+    display: inline-block;
 }
 
 .side-by-side-text-button {
@@ -87,4 +87,11 @@ a, .btn-link {
 
 .side-by-side-row {
     margin-bottom: 5px;
+}
+
+.side-by-side-text-area {
+    max-width: 45%;
+    margin: 10px;
+
+    height: 500px;
 }

@@ -13,27 +13,24 @@
 <div class="side-by-side container">
     <div class="side-by-side-text container">
         <div class="side-by-side-row row">
-            <span class="side-by-side-key">Language</span>
-            <select @bind="InputModel.Language" class="side-by-side-value">
+            @foreach (var model in GetModels())
+            {
+                <button @onclick="() => ToggleHidden(model)" class="side-by-side-text-button btn btn-primary form-control col-md-3">Edit @model.Label Text</button>
+            }
+            <button @onclick="() => SetPhonemization()" class="side-by-side-text-button btn-primary form-control col-md-3">Phonemize</button>
+            <select @bind="InputModel.Language" class="side-by-side-text-button col-md-3 form-control">
                 @foreach (var language in Languages)
                 {
-                    <option value="@language.Key">@language.Value</option>
+                    <option value="@language.Key" class="form-control">@language.Value</option>
                 }
             </select>
         </div>
         <div class="side-by-side-row row">
             @foreach (var model in GetModels())
             {
-                <button @onclick="() => ToggleHidden(model)" class="side-by-side-text-button col-md-2">Edit @model.Label Text</button>
-            }
-            <button @onclick="() => SetPhonemization()" class="side-by-side-text-button col-md-2">Phonemize</button>
-        </div>
-        <div class="side-by-side-row row">
-            @foreach (var model in GetModels())
-            {
-                <textarea class="side-by-side-row col-md-@(12 / Math.Max(1, GetModels().Where(m => !m.Hidden).Count()))"
+                <textarea class="side-by-side-row side-by-side-text-area form-control col-md-@(12 / Math.Max(1, GetModels().Where(m => !m.Hidden).Count()))"
                       hidden="@model.Hidden" @bind="model.Text">
-                        </textarea>
+                </textarea>
             }
         </div>
     </div>
