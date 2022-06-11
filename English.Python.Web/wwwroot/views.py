@@ -2,7 +2,6 @@ from flask import request
 from flask_cors import CORS, cross_origin
 from . import app
 from phonemizer import phonemize
-from phonemizer.main import list_languages
 
 cors = CORS(app)
 app.config["CORS_HEADERS"] = "Content-Type"
