@@ -1,0 +1,64 @@
+﻿@page "/phonemeMapping"
+@page "/"
+@using System.Text.Json
+@using English.Web.Logic
+@using English.Web.Logic.Phonemes;
+@using English.Web.Model
+@inject PhonemizationFetcher PhonemeFetcher
+@inject PhonemeMappingModel Phonemes
+
+<PageTitle>PhonemeMapping</PageTitle>
+
+<h3>Phoneme Mapping</h3>
+
+<div class="side-by-side container">
+    <div class="side-by-side-row row">
+        @foreach (String key in Phonemes.Mapping.Keys)
+        {
+            <div class="side-by-side-pair col-md-2">
+                <span class="side-by-side-key">@key </span>
+                <input @bind="Phonemes.Mapping[key]" class="side-by-side-value"></input>
+                <button @onclick="() => RemovePhoneme(key)" class="side-by-side-remove btn-close"></button>
+            </div>
+        }
+        <div class="side-by-side-pair col-md-1">
+            <button @onclick="() => AddPhoneme()" class="side-by-side-key">+</button>
+            <input @bind="NewPhoneme" class="side-by-side-value"></input>
+        </div>
+    </div>
+
+    <div class="side-by-side-row row">
+        <button @onclick="() => LoadPhonemizerGA()" class="side-by-side-text-button col-md-2">Load GA phonemes</button>
+        <button @onclick="() => LoadStressedPhonemizerGA()" class="side-by-side-text-button col-md-2">Load Stressed GA phonemes</button>
+        <button @onclick="() => ClearPhonemes()" class="side-by-side-text-button col-md-2">Clear phonemes</button>
+    </div>
+</div>
+
+@code {
+
+    private String NewPhoneme = String.Empty;
+
+    private void AddPhoneme()
+    {
+        if (!Phonemes.Mapping.ContainsKey(NewPhoneme))
+        {
+            Phonemes.Mapping[NewPhoneme] = NewPhoneme;
+            NewPhoneme = String.Empty;
+        }
+    }
+
+    private void RemovePhoneme(String key)
+    {
+        if (key is not null && Phonemes.Mapping.ContainsKey(key))
+        {
+            Phonemes.Mapping.Remove(key);
+        }
+    }
+
+    private void ClearPhonemes() => Phonemes.Mapping.Clear();
+
+    private void LoadPhonemizerGA() => LoadPhonemes(new PythonPhonemizerPhonemeFetcher());
+    private void LoadStressedPhonemizerGA() => LoadPhonemes(new StressedPhonemizerPhonemeFetcher());
+
+    private void LoadPhonemes(IPhonemeFetcher fetcher) => Phonemes.Mapping = fetcher.GetPhonemeDict();
+}
