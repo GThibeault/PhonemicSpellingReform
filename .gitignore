@@ -363,3 +363,7 @@ MigrationBackup/
 FodyWeavers.xsd
 /English.Python/env
 /English.Python.Web/env
+/English.Phonemizer/env
+
+.python_packages
+.venv
