@@ -13,8 +13,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "English.Phonemizer", "English.Phonemizer\English.Phonemizer.pyproj", "{9AB4E7AF-B251-4279-978E-2A0200C9C271}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,8 +27,6 @@ Global
 		{1C1443B0-E534-4CEB-825A-60FD1DEE8396}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1C1443B0-E534-4CEB-825A-60FD1DEE8396}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1C1443B0-E534-4CEB-825A-60FD1DEE8396}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9AB4E7AF-B251-4279-978E-2A0200C9C271}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9AB4E7AF-B251-4279-978E-2A0200C9C271}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
