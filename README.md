@@ -22,6 +22,8 @@ The Python project requires a bit more involved of an installation due to the de
 
 Refer to the installation instructions and issues detailed on the [phonemizer package](https://github.com/bootphon/phonemizer) and [espeak-ng backend](https://github.com/espeak-ng/espeak-ng)'s github pages.
 
+Alternatively, check out the [containerize](https://github.com/GThibeault/PhonemicSpellingReform/tree/containerize) branch, which runs a working version of the phonemizer in Docker with no further installation required.
+
 ## Usage
 
 ### Source Text
